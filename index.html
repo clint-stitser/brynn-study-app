@@ -211,6 +211,103 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-
 .hist-fc-back{background:var(--hist) !important;}
 
 .hidden{display:none !important;}
+
+/* ─── MOBILE RESPONSIVE ─── */
+@media (max-width: 480px) {
+
+  /* Header — shrink title so back button doesn't overlap */
+  .app-header{padding:16px 16px 12px;}
+  .app-header h1{font-size:20px;}
+  .app-header p{font-size:11px;}
+  .back-btn{font-size:12px;padding:6px 11px;left:10px;}
+
+  /* Launchpad */
+  #screen-home{padding:20px 14px;}
+  .home-greeting h2{font-size:20px;}
+  .subject-grid{grid-template-columns:1fr 1fr;gap:10px;}
+  .subject-card{padding:18px 12px;}
+  .subject-card .sc-icon{font-size:28px;margin-bottom:8px;}
+  .subject-card .sc-title{font-size:15px;}
+
+  /* Tabs & mode bars — scrollable row, no wrap on small screens */
+  .tabs{padding:0 10px 10px;gap:5px;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;}
+  .tab-btn{font-size:12px;padding:6px 12px;flex-shrink:0;}
+  .mode-bar{padding:10px 10px 8px;gap:5px;flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;}
+  .mode-btn{font-size:11px;padding:6px 11px;flex-shrink:0;}
+  .hist-mode-bar{flex-wrap:nowrap;overflow-x:auto;justify-content:flex-start;padding:10px 10px 8px;gap:5px;}
+  .hist-mode-btn{flex-shrink:0;font-size:11px;padding:6px 12px;}
+
+  /* Flashcard — fluid height instead of fixed */
+  #mode-flashcard{padding:12px 14px 0;}
+  .flashcard-wrap{height:auto;min-height:260px;}
+  .flashcard-inner{min-height:260px;}
+  .flashcard-front,.flashcard-back{position:relative;min-height:260px;}
+  /* Override the absolute positioning for mobile — use a simpler flip approach */
+  .flashcard-front,.flashcard-back{position:absolute;min-height:0;height:100%;}
+  .flashcard-wrap{height:260px;}
+  .card-word-front{font-size:34px;}
+  .card-controls{gap:8px;}
+  .ctrl-btn{font-size:12px;padding:10px 8px;}
+
+  /* History flashcard question text — smaller to fit */
+  #hfc-q{font-size:16px !important;line-height:1.4 !important;}
+
+  /* Quiz */
+  .quiz-wrap{padding:12px 14px 0;}
+  .quiz-card{padding:16px 14px;}
+  .quiz-word{font-size:24px;}
+  .quiz-opt{font-size:13px;padding:10px 13px;}
+  .quiz-fb{font-size:12px;}
+  .quiz-next{font-size:13px;padding:12px;}
+  .hist-quiz-wrap{padding:12px 14px 0;}
+  .hist-quiz-card{padding:16px 14px;}
+  .hist-quiz-q{font-size:14px;margin-bottom:14px;}
+  .hist-quiz-opt{font-size:13px;padding:10px 13px;}
+
+  /* Match — stay 2 col but tighter */
+  #mode-match{padding:12px 14px 0;}
+  .match-grid{gap:7px;}
+  .match-tile{font-size:12px;padding:9px 10px;min-height:48px;}
+  .match-tile.word{font-size:15px;}
+
+  /* Word list — stack left column above right */
+  #mode-list{padding:12px 14px;}
+  .word-row{flex-wrap:wrap;gap:4px;}
+  .word-row-unit{min-width:auto;margin-right:6px;}
+  .word-row-left{flex:0 0 100%;display:flex;align-items:baseline;gap:8px;margin-bottom:2px;}
+  .word-row-right{flex:0 0 100%;}
+  .word-row-name{font-size:15px;}
+
+  /* History topic grid — single column on very small screens */
+  .hist-topic-grid{grid-template-columns:1fr 1fr;gap:8px;padding:14px 14px 0;}
+  .hist-topic-btn{padding:14px 10px;}
+  .hist-topic-btn .ht-icon{font-size:22px;margin-bottom:6px;}
+  .hist-topic-btn .ht-title{font-size:13px;}
+
+  /* Study guide */
+  .study-guide{padding:12px 14px;}
+  .sg-section-title{font-size:16px;}
+  .sg-card{padding:13px 12px;}
+  .sg-card-body{font-size:12px;}
+  .timeline-date{min-width:66px;font-size:11px;}
+  .timeline-text{font-size:12px;}
+
+  /* Result screen */
+  .result-title{font-size:22px;}
+  .result-sub{font-size:13px;}
+  .result-btn{padding:12px 24px;font-size:14px;}
+
+  /* Section header */
+  .section-header{padding:14px 14px 8px;}
+  .section-header h2{font-size:18px;}
+}
+
+/* Slightly larger phones (481–600px) — just loosen padding a bit */
+@media (min-width:481px) and (max-width:600px){
+  .app-header h1{font-size:22px;}
+  .card-word-front{font-size:38px;}
+  .quiz-word{font-size:26px;}
+}
 </style>
 </head>
 <body>
