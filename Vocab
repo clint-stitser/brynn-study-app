@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brynn's Study App</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f5f2ec; --surface:#fff; --surface2:#ede9e1; --surface3:#f9f7f3;
+  --ink:#1a1714; --ink2:#5a5650; --ink3:#9a9590;
+  --accent:#2d4a3e; --accent2:#c8a96e; --accent-light:#e8f0ec;
+  --red:#a03020; --green:#2d5a3d; --border:rgba(26,23,20,0.1); --radius:12px;
+  --syn:#1a3a5c; --ant:#5c1a1a;
+  --hist:#3d2b1f; --hist2:#7a4f2e; --hist-light:#f5ece3;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding-bottom:60px;}
+
+/* ─── GLOBAL HEADER ─── */
+.app-header{background:var(--accent);color:white;padding:22px 20px 14px;text-align:center;position:relative;}
+.app-header h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;letter-spacing:.01em;margin-bottom:2px;}
+.app-header p{font-size:12px;opacity:.65;letter-spacing:.06em;text-transform:uppercase;}
+.back-btn{position:absolute;left:16px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:white;padding:7px 14px;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;display:none;}
+.back-btn:hover{background:rgba(255,255,255,.3);}
+.back-btn.visible{display:block;}
+
+/* ─── LAUNCHPAD ─── */
+#screen-home{padding:28px 20px;}
+.home-greeting{text-align:center;margin-bottom:28px;}
+.home-greeting h2{font-family:'Playfair Display',serif;font-size:24px;margin-bottom:6px;}
+.home-greeting p{font-size:14px;color:var(--ink2);}
+.subject-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:500px;margin:0 auto;}
+.subject-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px 18px;cursor:pointer;transition:all .2s;text-align:center;}
+.subject-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(0,0,0,.09);}
+.subject-card .sc-icon{font-size:36px;margin-bottom:12px;}
+.subject-card .sc-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:4px;}
+.subject-card .sc-sub{font-size:12px;color:var(--ink3);}
+.subject-card.vocab{border-top:3px solid var(--accent);}
+.subject-card.history{border-top:3px solid var(--hist2);}
+
+/* ─── SECTION HEADERS ─── */
+.section-header{padding:18px 20px 10px;border-bottom:1px solid var(--border);margin-bottom:0;}
+.section-header h2{font-family:'Playfair Display',serif;font-size:20px;margin-bottom:3px;}
+.section-header p{font-size:13px;color:var(--ink2);}
+
+/* ─── VOCAB AREA ─── */
+#screen-vocab{}
+.tabs{display:flex;background:var(--accent);border-top:1px solid rgba(255,255,255,.1);padding:0 12px 12px;gap:6px;justify-content:center;flex-wrap:wrap;}
+.tab-btn{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);color:white;padding:7px 15px;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;}
+.tab-btn.active{background:var(--accent2);border-color:var(--accent2);color:var(--accent);font-weight:500;}
+.tab-btn:hover:not(.active){background:rgba(255,255,255,.25);}
+.mode-bar{display:flex;gap:6px;padding:12px 14px 10px;overflow-x:auto;justify-content:center;flex-wrap:wrap;}
+.mode-btn{background:var(--surface);border:1px solid var(--border);color:var(--ink2);padding:7px 13px;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.mode-btn.active{background:var(--accent);color:white;border-color:var(--accent);}
+.mode-btn.syn-btn.active{background:var(--syn);border-color:var(--syn);}
+.mode-btn.ant-btn.active{background:var(--ant);border-color:var(--ant);}
+
+/* SHARED QUIZ */
+.quiz-wrap{padding:14px 18px 0;}
+.quiz-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:22px;max-width:540px;margin:0 auto 14px;}
+.quiz-type-label{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:12px;}
+.label-def{background:var(--accent-light);color:var(--accent);}
+.label-syn{background:#dbeafe;color:#1e3a5f;}
+.label-ant{background:#fde8e4;color:#7a2010;}
+.quiz-q{font-size:12px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;}
+.quiz-word{font-family:'Playfair Display',serif;font-size:30px;font-weight:700;margin-bottom:4px;}
+.quiz-tag{font-size:11px;color:var(--ink3);margin-bottom:14px;font-style:italic;}
+.quiz-context{font-size:13px;color:var(--ink2);background:var(--surface2);border-left:3px solid var(--accent2);padding:9px 13px;border-radius:0 8px 8px 0;margin-bottom:16px;line-height:1.5;}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;}
+.quiz-opt{padding:11px 15px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:13px;line-height:1.4;transition:all .15s;text-align:left;}
+.quiz-opt:hover:not(.locked){border-color:var(--accent);background:var(--accent-light);}
+.quiz-opt.correct{background:#e6f4ea;border-color:var(--green);color:var(--green);font-weight:500;}
+.quiz-opt.wrong{background:#fde8e4;border-color:var(--red);color:var(--red);}
+.quiz-opt.locked{cursor:default;}
+.quiz-fb{display:none;padding:11px 15px;border-radius:10px;font-size:13px;margin-top:11px;line-height:1.6;}
+.quiz-fb.show{display:block;}
+.quiz-fb.correct{background:#e6f4ea;color:var(--green);border:1px solid var(--green);}
+.quiz-fb.wrong{background:#fde8e4;color:var(--red);border:1px solid var(--red);}
+.quiz-next{display:none;width:100%;max-width:540px;margin:0 auto;padding:13px;color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;}
+.quiz-next.show{display:block;}
+.next-def{background:var(--accent);}
+.next-syn{background:var(--syn);}
+.next-ant{background:var(--ant);}
+.score-bar{display:flex;gap:8px;justify-content:center;padding:0 0 12px;font-size:13px;flex-wrap:wrap;}
+.score-chip{padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--surface);}
+.score-chip.cc{background:#e6f4ea;color:var(--green);border-color:var(--green);}
+.score-chip.wc{background:#fde8e4;color:var(--red);border-color:var(--red);}
+
+/* FLASHCARD */
+#mode-flashcard{padding:14px 18px 0;}
+.progress-bar{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.progress-track{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;background:var(--accent2);border-radius:2px;transition:width .3s;}
+.progress-label{font-size:12px;color:var(--ink3);min-width:40px;text-align:right;}
+.flashcard-wrap{perspective:1000px;cursor:pointer;margin:0 auto 16px;max-width:520px;height:320px;}
+.flashcard-inner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.175,.885,.32,1.275);}
+.flashcard-inner.flipped{transform:rotateY(180deg);}
+.flashcard-front,.flashcard-back{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius);}
+.flashcard-front{background:var(--surface);border:1px solid var(--border);box-shadow:0 4px 20px rgba(0,0,0,.06);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px;text-align:center;}
+.flashcard-back{background:var(--accent);transform:rotateY(180deg);color:white;overflow-y:auto;padding:20px 22px;display:flex;flex-direction:column;align-items:flex-start;text-align:left;}
+.card-badge{font-size:11px;letter-spacing:.08em;text-transform:uppercase;padding:4px 12px;border-radius:12px;font-weight:500;margin-bottom:14px;}
+.fc-front-badge{background:var(--accent-light);color:var(--accent);}
+.fc-back-badge{background:rgba(255,255,255,.18);color:rgba(255,255,255,.9);}
+.card-word-front{font-family:'Playfair Display',serif;font-size:44px;font-weight:700;line-height:1.1;}
+.card-hint{font-size:12px;color:var(--ink3);margin-top:22px;}
+.back-header{display:flex;align-items:baseline;gap:9px;margin-bottom:12px;width:100%;}
+.back-word{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:white;}
+.back-pos{font-size:12px;font-style:italic;color:rgba(255,255,255,.65);background:rgba(255,255,255,.15);padding:2px 9px;border-radius:8px;}
+.back-def{font-size:13.5px;line-height:1.65;color:rgba(255,255,255,.92);margin-bottom:14px;font-weight:300;border-bottom:1px solid rgba(255,255,255,.15);padding-bottom:14px;width:100%;}
+.back-row{width:100%;margin-bottom:9px;}
+.back-lbl{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:3px;}
+.back-syns{font-size:13px;color:rgba(255,255,255,.88);line-height:1.45;}
+.back-ants{font-size:13px;color:rgba(255,190,170,.95);line-height:1.45;}
+.card-controls{display:flex;gap:10px;justify-content:center;max-width:520px;margin:0 auto;}
+.ctrl-btn{flex:1;padding:11px;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:all .15s;font-weight:500;}
+.ctrl-btn:hover{background:var(--surface2);}
+.ctrl-btn.prev{color:var(--ink2);}
+.ctrl-btn.next{background:var(--accent);color:white;border-color:var(--accent);}
+.ctrl-btn.shuf{color:var(--accent);}
+
+/* MATCH */
+#mode-match{padding:14px 18px 0;}
+.match-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;max-width:560px;margin:0 auto 16px;}
+.match-tile{padding:11px 13px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-size:13px;line-height:1.4;transition:all .15s;min-height:54px;display:flex;align-items:center;}
+.match-tile.word{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;justify-content:center;}
+.match-tile.selected{border-color:var(--accent);background:var(--accent-light);}
+.match-tile.matched{background:#e6f4ea;border-color:var(--green);color:var(--green);cursor:default;opacity:.7;}
+.match-tile.wrong-flash{background:#fde8e4;border-color:var(--red);}
+.match-score{text-align:center;font-size:13px;color:var(--ink2);margin-bottom:10px;}
+
+/* LIST */
+#mode-list{padding:14px 18px;}
+.search-box{width:100%;padding:11px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);margin-bottom:14px;}
+.search-box:focus{outline:none;border-color:var(--accent);}
+.word-row{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--border);}
+.word-row:last-child{border-bottom:none;}
+.word-row-unit{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;min-width:26px;padding-top:3px;text-align:center;}
+.word-row-left{flex:0 0 115px;}
+.word-row-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;margin-bottom:2px;}
+.word-row-pos{font-size:11px;color:var(--ink3);font-style:italic;}
+.word-row-right{flex:1;}
+.word-row-def{font-size:13px;line-height:1.5;color:var(--ink2);margin-bottom:4px;}
+.word-row-meta{font-size:11px;color:var(--ink3);line-height:1.6;}
+.word-row-meta strong{color:var(--ink2);font-weight:500;}
+.ant-text{color:#7a2e1e;}
+
+/* RESULT */
+.result-screen{display:none;text-align:center;padding:40px 20px;max-width:400px;margin:0 auto;}
+.result-screen.show{display:block;}
+.result-emoji{font-size:56px;margin-bottom:16px;}
+.result-title{font-family:'Playfair Display',serif;font-size:28px;margin-bottom:8px;}
+.result-sub{color:var(--ink2);font-size:15px;margin-bottom:24px;}
+.result-btn{padding:14px 32px;background:var(--accent);color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;}
+
+/* ─── HISTORY AREA ─── */
+#screen-history{padding:0 0 20px;}
+.hist-topic-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:18px 18px 0;max-width:520px;margin:0 auto;}
+.hist-topic-btn{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 14px;cursor:pointer;transition:all .2s;text-align:center;}
+.hist-topic-btn:hover{transform:translateY(-2px);box-shadow:0 5px 20px rgba(0,0,0,.08);}
+.hist-topic-btn .ht-icon{font-size:28px;margin-bottom:8px;}
+.hist-topic-btn .ht-title{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;line-height:1.3;margin-bottom:3px;}
+.hist-topic-btn .ht-sub{font-size:11px;color:var(--ink3);}
+
+/* HISTORY TOPIC SCREEN */
+#screen-history-topic{padding:0;}
+.hist-mode-bar{display:flex;gap:6px;padding:12px 14px 10px;overflow-x:auto;justify-content:center;flex-wrap:wrap;border-bottom:1px solid var(--border);}
+.hist-mode-btn{background:var(--surface);border:1px solid var(--border);color:var(--ink2);padding:7px 14px;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.hist-mode-btn.active{background:var(--hist);color:white;border-color:var(--hist);}
+
+/* STUDY GUIDE */
+.study-guide{padding:16px 18px;max-width:620px;margin:0 auto;}
+.sg-section{margin-bottom:24px;}
+.sg-section-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--accent2);color:var(--hist);}
+.sg-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;}
+.sg-card-title{font-weight:500;font-size:14px;margin-bottom:5px;color:var(--ink);}
+.sg-card-body{font-size:13px;color:var(--ink2);line-height:1.6;}
+.sg-card-body ul{margin:6px 0 0 16px;}
+.sg-card-body li{margin-bottom:4px;}
+.sg-badge{display:inline-block;font-size:10px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;padding:2px 9px;border-radius:10px;margin-bottom:6px;}
+.badge-ally{background:#dbeafe;color:#1e3a5f;}
+.badge-axis{background:#fde8e4;color:#7a2010;}
+.badge-event{background:#f5ece3;color:#5a2e10;}
+.badge-person{background:#e8f0ec;color:#2d4a3e;}
+.timeline-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.timeline-item:last-child{border-bottom:none;}
+.timeline-date{font-size:12px;font-weight:500;color:var(--hist2);min-width:80px;padding-top:2px;}
+.timeline-text{font-size:13px;color:var(--ink2);line-height:1.5;}
+.timeline-text strong{color:var(--ink);font-weight:500;}
+
+/* HISTORY QUIZ */
+.hist-quiz-wrap{padding:14px 18px 0;}
+.hist-quiz-card{background:var(--surface);border-radius:var(--radius);border:1px solid var(--border);padding:22px;max-width:540px;margin:0 auto 14px;}
+.hist-quiz-label{font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;padding:4px 12px;border-radius:20px;display:inline-block;margin-bottom:12px;background:var(--hist-light);color:var(--hist);}
+.hist-quiz-q{font-size:16px;font-weight:500;line-height:1.5;margin-bottom:18px;color:var(--ink);}
+.hist-quiz-opts{display:flex;flex-direction:column;gap:8px;}
+.hist-quiz-opt{padding:11px 15px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;font-size:13px;line-height:1.4;transition:all .15s;text-align:left;}
+.hist-quiz-opt:hover:not(.locked){border-color:var(--hist2);background:var(--hist-light);}
+.hist-quiz-opt.correct{background:#e6f4ea;border-color:var(--green);color:var(--green);font-weight:500;}
+.hist-quiz-opt.wrong{background:#fde8e4;border-color:var(--red);color:var(--red);}
+.hist-quiz-opt.locked{cursor:default;}
+.hist-quiz-fb{display:none;padding:11px 15px;border-radius:10px;font-size:13px;margin-top:11px;line-height:1.6;}
+.hist-quiz-fb.show{display:block;}
+.hist-quiz-fb.correct{background:#e6f4ea;color:var(--green);border:1px solid var(--green);}
+.hist-quiz-fb.wrong{background:#fde8e4;color:var(--red);border:1px solid var(--red);}
+.hist-quiz-next{display:none;width:100%;max-width:540px;margin:0 auto;padding:13px;color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;background:var(--hist);}
+.hist-quiz-next.show{display:block;}
+
+/* HISTORY FLASHCARDS */
+.hist-fc-front{background:var(--surface);}
+.hist-fc-back{background:var(--hist) !important;}
+
+.hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<!-- GLOBAL HEADER -->
+<div class="app-header">
+  <button class="back-btn" id="back-btn" onclick="goBack()">← Back</button>
+  <h1 id="app-title">Brynn's Study App</h1>
+  <p id="app-subtitle">Choose a subject to study</p>
+</div>
+
+<!-- ══════════════ LAUNCHPAD ══════════════ -->
+<div id="screen-home">
+  <div class="home-greeting">
+    <h2>What are we studying today? 📚</h2>
+    <p>Pick a subject to get started</p>
+  </div>
+  <div class="subject-grid">
+    <div class="subject-card vocab" onclick="showScreen('vocab')">
+      <div class="sc-icon">📖</div>
+      <div class="sc-title">Vocabulary</div>
+      <div class="sc-sub">Level C · Units 13–15</div>
+    </div>
+    <div class="subject-card history" onclick="showScreen('history')">
+      <div class="sc-icon">🌍</div>
+      <div class="sc-title">History</div>
+      <div class="sc-sub">World War II</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ VOCAB SCREEN ══════════════ -->
+<div id="screen-vocab" class="hidden">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="setUnit('all')">All Units</button>
+    <button class="tab-btn" onclick="setUnit(13)">Unit 13</button>
+    <button class="tab-btn" onclick="setUnit(14)">Unit 14</button>
+    <button class="tab-btn" onclick="setUnit(15)">Unit 15</button>
+  </div>
+  <div class="mode-bar">
+    <button class="mode-btn active"  onclick="setMode('flashcard')">⬜ Flashcards</button>
+    <button class="mode-btn"         onclick="setMode('quiz')">🎯 Definitions</button>
+    <button class="mode-btn syn-btn" onclick="setMode('syn')">🔵 Synonyms</button>
+    <button class="mode-btn ant-btn" onclick="setMode('ant')">🔴 Antonyms</button>
+    <button class="mode-btn"         onclick="setMode('match')">🔗 Match</button>
+    <button class="mode-btn"         onclick="setMode('list')">📋 Word List</button>
+  </div>
+
+  <!-- FLASHCARD -->
+  <div id="mode-flashcard">
+    <div class="progress-bar">
+      <div class="progress-track"><div class="progress-fill" id="fc-progress"></div></div>
+      <div class="progress-label" id="fc-count"></div>
+    </div>
+    <div class="flashcard-wrap" onclick="flipCard()">
+      <div class="flashcard-inner" id="fc-inner">
+        <div class="flashcard-front">
+          <div class="card-badge fc-front-badge" id="fc-badge">Unit 13</div>
+          <div class="card-word-front" id="fc-word">—</div>
+          <div class="card-hint">tap to flip</div>
+        </div>
+        <div class="flashcard-back">
+          <div class="card-badge fc-back-badge" id="fc-badge-b">Unit 13</div>
+          <div class="back-header"><span class="back-word" id="fc-word-b">—</span><span class="back-pos" id="fc-pos-b">adj</span></div>
+          <div class="back-def" id="fc-def"></div>
+          <div class="back-row"><div class="back-lbl">Synonyms</div><div class="back-syns" id="fc-syns"></div></div>
+          <div class="back-row"><div class="back-lbl">Antonyms</div><div class="back-ants" id="fc-ants"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-controls">
+      <button class="ctrl-btn prev" onclick="prevCard()">← Back</button>
+      <button class="ctrl-btn shuf" onclick="shuffleCards()">🔀 Shuffle</button>
+      <button class="ctrl-btn next" onclick="nextCard()">Next →</button>
+    </div>
+  </div>
+
+  <!-- DEFINITIONS QUIZ -->
+  <div id="mode-quiz" class="quiz-wrap hidden">
+    <div class="score-bar"><div class="score-chip cc" id="q-c">✓ 0</div><div class="score-chip wc" id="q-w">✗ 0</div><div class="score-chip" id="q-l">0 left</div></div>
+    <div id="quiz-main">
+      <div class="quiz-card">
+        <span class="quiz-type-label label-def">Definition Quiz</span>
+        <div class="quiz-q">What does this word mean?</div>
+        <div class="quiz-word" id="q-word">—</div>
+        <div class="quiz-tag" id="q-tag"></div>
+        <div class="quiz-opts" id="q-opts"></div>
+        <div class="quiz-fb" id="q-fb"></div>
+      </div>
+      <button class="quiz-next next-def" id="q-next" onclick="advanceQuiz('q')">Next →</button>
+    </div>
+    <div class="result-screen" id="q-result"><div class="result-emoji" id="q-re">🎉</div><div class="result-title" id="q-rt">Done!</div><div class="result-sub" id="q-rs"></div><button class="result-btn" onclick="startQuiz('q')">Try Again</button></div>
+  </div>
+
+  <!-- SYNONYMS QUIZ -->
+  <div id="mode-syn" class="quiz-wrap hidden">
+    <div class="score-bar"><div class="score-chip cc" id="s-c">✓ 0</div><div class="score-chip wc" id="s-w">✗ 0</div><div class="score-chip" id="s-l">0 left</div></div>
+    <div id="syn-main">
+      <div class="quiz-card">
+        <span class="quiz-type-label label-syn">Synonyms Quiz</span>
+        <div class="quiz-q">Which answer is a synonym of…</div>
+        <div class="quiz-word" id="s-word">—</div>
+        <div class="quiz-tag" id="s-tag"></div>
+        <div class="quiz-context" id="s-ctx"></div>
+        <div class="quiz-opts" id="s-opts"></div>
+        <div class="quiz-fb" id="s-fb"></div>
+      </div>
+      <button class="quiz-next next-syn" id="s-next" onclick="advanceQuiz('s')">Next →</button>
+    </div>
+    <div class="result-screen" id="s-result"><div class="result-emoji" id="s-re">🎉</div><div class="result-title" id="s-rt">Done!</div><div class="result-sub" id="s-rs"></div><button class="result-btn" style="background:var(--syn)" onclick="startQuiz('s')">Try Again</button></div>
+  </div>
+
+  <!-- ANTONYMS QUIZ -->
+  <div id="mode-ant" class="quiz-wrap hidden">
+    <div class="score-bar"><div class="score-chip cc" id="a-c">✓ 0</div><div class="score-chip wc" id="a-w">✗ 0</div><div class="score-chip" id="a-l">0 left</div></div>
+    <div id="ant-main">
+      <div class="quiz-card">
+        <span class="quiz-type-label label-ant">Antonyms Quiz</span>
+        <div class="quiz-q">Which answer is an antonym of…</div>
+        <div class="quiz-word" id="a-word">—</div>
+        <div class="quiz-tag" id="a-tag"></div>
+        <div class="quiz-context" id="a-ctx"></div>
+        <div class="quiz-opts" id="a-opts"></div>
+        <div class="quiz-fb" id="a-fb"></div>
+      </div>
+      <button class="quiz-next next-ant" id="a-next" onclick="advanceQuiz('a')">Next →</button>
+    </div>
+    <div class="result-screen" id="a-result"><div class="result-emoji" id="a-re">🎉</div><div class="result-title" id="a-rt">Done!</div><div class="result-sub" id="a-rs"></div><button class="result-btn" style="background:var(--ant)" onclick="startQuiz('a')">Try Again</button></div>
+  </div>
+
+  <!-- MATCH -->
+  <div id="mode-match" class="hidden"><div style="padding:14px 18px 0"><div class="match-score" id="match-score">Match each word to its definition</div><div class="match-grid" id="match-grid"></div><div class="result-screen" id="match-result"><div class="result-emoji">⭐</div><div class="result-title">All matched!</div><div class="result-sub" id="match-sub"></div><button class="result-btn" onclick="resetMatch()">Play Again</button></div></div></div>
+
+  <!-- LIST -->
+  <div id="mode-list" class="hidden"><input class="search-box" type="text" placeholder="Search words, definitions, synonyms, antonyms…" oninput="filterList(this.value)"><div id="word-list"></div></div>
+</div>
+
+<!-- ══════════════ HISTORY SCREEN ══════════════ -->
+<div id="screen-history" class="hidden">
+  <div class="section-header">
+    <h2>🌍 World War II</h2>
+    <p>7th Grade Final Exam Study Guide</p>
+  </div>
+  <div class="hist-topic-grid">
+    <div class="hist-topic-btn" onclick="showHistTopic('leaders')">
+      <div class="ht-icon">👑</div>
+      <div class="ht-title">Allied & Axis Leaders</div>
+      <div class="ht-sub">Key figures of WWII</div>
+    </div>
+    <div class="hist-topic-btn" onclick="showHistTopic('poland')">
+      <div class="ht-icon">⚔️</div>
+      <div class="ht-title">Invasion of Poland</div>
+      <div class="ht-sub">September 1939</div>
+    </div>
+    <div class="hist-topic-btn" onclick="showHistTopic('pearl')">
+      <div class="ht-icon">💥</div>
+      <div class="ht-title">Pearl Harbor</div>
+      <div class="ht-sub">December 7, 1941</div>
+    </div>
+    <div class="hist-topic-btn" onclick="showHistTopic('holocaust')">
+      <div class="ht-icon">✡️</div>
+      <div class="ht-title">The Holocaust</div>
+      <div class="ht-sub">1933–1945</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ HISTORY TOPIC SCREEN ══════════════ -->
+<div id="screen-history-topic" class="hidden">
+  <div class="hist-mode-bar">
+    <button class="hist-mode-btn active" onclick="setHistMode('guide')">📄 Study Guide</button>
+    <button class="hist-mode-btn" onclick="setHistMode('flashcard')">⬜ Flashcards</button>
+    <button class="hist-mode-btn" onclick="setHistMode('quiz')">🎯 Quiz</button>
+  </div>
+
+  <!-- STUDY GUIDE AREA -->
+  <div id="hist-mode-guide"></div>
+
+  <!-- HISTORY FLASHCARDS -->
+  <div id="hist-mode-flashcard" class="hidden">
+    <div style="padding:14px 18px 0;">
+      <div class="progress-bar">
+        <div class="progress-track"><div class="progress-fill" id="hfc-progress"></div></div>
+        <div class="progress-label" id="hfc-count"></div>
+      </div>
+      <div class="flashcard-wrap" onclick="flipHCard()">
+        <div class="flashcard-inner" id="hfc-inner">
+          <div class="flashcard-front hist-fc-front">
+            <div class="card-badge" style="background:var(--hist-light);color:var(--hist)" id="hfc-badge">Topic</div>
+            <div class="card-word-front" style="font-size:22px;line-height:1.3;text-align:center" id="hfc-q">—</div>
+            <div class="card-hint">tap to flip</div>
+          </div>
+          <div class="flashcard-back hist-fc-back">
+            <div class="card-badge fc-back-badge" id="hfc-badge-b">Topic</div>
+            <div class="back-def" id="hfc-a" style="border-bottom:none;margin-bottom:0;padding-bottom:0;font-size:14px;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="card-controls">
+        <button class="ctrl-btn prev" onclick="prevHCard()">← Back</button>
+        <button class="ctrl-btn shuf" onclick="shuffleHCards()">🔀 Shuffle</button>
+        <button class="ctrl-btn next" style="background:var(--hist);border-color:var(--hist)" onclick="nextHCard()">Next →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY QUIZ -->
+  <div id="hist-mode-quiz" class="hist-quiz-wrap hidden">
+    <div class="score-bar">
+      <div class="score-chip cc" id="hq-c">✓ 0</div>
+      <div class="score-chip wc" id="hq-w">✗ 0</div>
+      <div class="score-chip" id="hq-l">0 left</div>
+    </div>
+    <div id="hq-main">
+      <div class="hist-quiz-card">
+        <span class="hist-quiz-label" id="hq-label">Topic</span>
+        <div class="hist-quiz-q" id="hq-q">—</div>
+        <div class="hist-quiz-opts" id="hq-opts"></div>
+        <div class="hist-quiz-fb" id="hq-fb"></div>
+      </div>
+      <button class="hist-quiz-next" id="hq-next" onclick="nextHQuiz()">Next →</button>
+    </div>
+    <div class="result-screen" id="hq-result">
+      <div class="result-emoji" id="hq-re">🎉</div>
+      <div class="result-title" id="hq-rt">Done!</div>
+      <div class="result-sub" id="hq-rs"></div>
+      <button class="result-btn" style="background:var(--hist)" onclick="startHQuiz()">Try Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════ NAVIGATION ══════════
+let screenStack = ['home'];
+let currentHistTopic = null;
+let currentHistMode = 'guide';
+
+function showScreen(name){
+  ['home','vocab','history','history-topic'].forEach(s=>{
+    document.getElementById('screen-'+s).classList.toggle('hidden', s!==name);
+  });
+  const backBtn = document.getElementById('back-btn');
+  const title = document.getElementById('app-title');
+  const sub = document.getElementById('app-subtitle');
+  if(name==='home'){
+    backBtn.classList.remove('visible');
+    title.textContent="Brynn's Study App";
+    sub.textContent="Choose a subject to study";
+  } else if(name==='vocab'){
+    backBtn.classList.add('visible');
+    title.textContent="Vocabulary";
+    sub.textContent="Level C · Units 13–15";
+    initFlashcard(); renderList();
+  } else if(name==='history'){
+    backBtn.classList.add('visible');
+    title.textContent="World War II";
+    sub.textContent="7th Grade Final Exam";
+  } else if(name==='history-topic'){
+    backBtn.classList.add('visible');
+  }
+  screenStack.push(name);
+}
+
+function goBack(){
+  screenStack.pop();
+  const prev = screenStack[screenStack.length-1]||'home';
+  screenStack.pop();
+  showScreen(prev);
+}
+
+// ══════════ HISTORY TOPICS ══════════
+const HIST_TOPICS = {
+  leaders:{
+    title:"Allied & Axis Leaders",
+    icon:"👑",
+    cards:[
+      {q:"Who was the Prime Minister of Great Britain during WWII?", a:"Winston Churchill (1940–1945). He was famous for his defiant speeches that inspired the British people to resist Nazi Germany. Key quote: 'We shall never surrender.'"},
+      {q:"Who was the President of the United States during most of WWII?", a:"Franklin D. Roosevelt (FDR). He led the U.S. through most of the war and helped form the Allied coalition. He died in April 1945, just before the war ended; Harry Truman finished out the war."},
+      {q:"Who was the leader of the Soviet Union during WWII?", a:"Joseph Stalin. He led the USSR as part of the Allied powers after Hitler invaded the Soviet Union in 1941 (Operation Barbarossa). The USSR suffered the most casualties of any country — over 20 million dead."},
+      {q:"Who was the leader of Nazi Germany?", a:"Adolf Hitler. He was the dictator (Führer) of Germany from 1933–1945. He launched WWII by invading Poland and was responsible for the Holocaust. He died by suicide on April 30, 1945, as Soviet forces closed in on Berlin."},
+      {q:"Who was the leader of Fascist Italy?", a:"Benito Mussolini. He was Italy's fascist dictator ('Il Duce') and allied with Hitler. Italy originally joined the Axis powers but switched sides in 1943 after Allied forces invaded Sicily."},
+      {q:"Who was the leader of Imperial Japan?", a:"Emperor Hirohito was the figurehead ruler, but Prime Minister Hideki Tojo held real military power. Japan attacked Pearl Harbor and controlled much of Asia and the Pacific early in the war."},
+      {q:"Who were the 'Big Three' Allied leaders?", a:"Franklin D. Roosevelt (USA), Winston Churchill (Great Britain), and Joseph Stalin (Soviet Union). They met at key conferences — Tehran (1943) and Yalta (1945) — to plan Allied strategy and discuss the postwar world."},
+      {q:"What were the Axis Powers?", a:"Germany, Italy, and Japan. They signed the Tripartite Pact in September 1940, pledging to support each other. The Axis powers wanted to expand their empires and opposed the Allied democracies."},
+      {q:"What were the Allied Powers?", a:"The main Allied countries were Great Britain, the United States, the Soviet Union, and France. They fought to defeat the Axis powers and restore peace. Other nations like Canada, Australia, and China also joined the Allies."},
+      {q:"What was the significance of Charles de Gaulle?", a:"Charles de Gaulle was a French general who led the Free French Forces from exile in London after France fell to Germany in 1940. He became a symbol of French resistance and later became President of France after liberation."}
+    ],
+    quiz:[
+      {q:"Which Allied leader said 'We shall never surrender'?", opts:["Franklin Roosevelt","Joseph Stalin","Winston Churchill","Charles de Gaulle"], ans:2, exp:"Winston Churchill's defiant speeches, including this famous line, rallied Britain against Nazi Germany."},
+      {q:"Who were the three main Axis Powers?", opts:["Germany, Japan, France","Germany, Italy, Japan","Germany, Italy, Spain","Japan, Italy, USSR"], ans:1, exp:"Germany, Italy, and Japan formed the Axis through the Tripartite Pact signed in September 1940."},
+      {q:"What was the 'Big Three' alliance?", opts:["Germany, Italy, Japan","USA, Great Britain, France","USA, Great Britain, Soviet Union","Britain, France, Poland"], ans:2, exp:"Roosevelt, Churchill, and Stalin — the leaders of the USA, Great Britain, and Soviet Union — were called the 'Big Three' Allied leaders."},
+      {q:"Who was Adolf Hitler?", opts:["Italy's fascist dictator","Germany's Nazi dictator","Japan's military leader","France's resistance leader"], ans:1, exp:"Adolf Hitler was the Nazi dictator (Führer) of Germany who started WWII by invading Poland and was responsible for the Holocaust."},
+      {q:"Which country suffered the most casualties in WWII?", opts:["United States","Great Britain","Germany","Soviet Union"], ans:3, exp:"The Soviet Union lost over 20 million people — more than any other nation — including both soldiers and civilians."},
+      {q:"What did Mussolini's Italy do in 1943?", opts:["Invaded the Soviet Union","Surrendered and switched to the Allied side","Bombed Pearl Harbor","Signed the Tripartite Pact"], ans:1, exp:"After Allied forces invaded Sicily, Italy surrendered and switched sides, joining the Allies against Germany."},
+      {q:"Who held real military power in wartime Japan?", opts:["Emperor Hirohito","Admiral Yamamoto","Prime Minister Hideki Tojo","General MacArthur"], ans:2, exp:"While Emperor Hirohito was the symbolic ruler, Prime Minister Hideki Tojo held actual military and political power during most of the war."},
+      {q:"What was FDR's full name?", opts:["Frederick D. Roosevelt","Franklin Delano Roosevelt","Francis D. Roosevelt","Franklin Douglas Roosevelt"], ans:1, exp:"FDR stood for Franklin Delano Roosevelt, 32nd President of the United States, who led the country through most of WWII."}
+    ]
+  },
+  poland:{
+    title:"Invasion of Poland",
+    icon:"⚔️",
+    cards:[
+      {q:"When did Germany invade Poland?", a:"September 1, 1939. This is considered the official start of World War II in Europe. Germany attacked from the west, and 16 days later the Soviet Union attacked from the east as part of a secret agreement with Germany (Molotov-Ribbentrop Pact)."},
+      {q:"What was the Blitzkrieg?", a:"'Blitzkrieg' means 'lightning war' in German. It was a fast, surprise military tactic using tanks, motorized infantry, and air support (the Luftwaffe) moving together at high speed to overwhelm and outflank the enemy before they could respond."},
+      {q:"What was the Molotov-Ribbentrop Pact?", a:"A secret non-aggression agreement signed between Nazi Germany and the Soviet Union in August 1939. It secretly divided Eastern Europe into German and Soviet 'spheres of influence.' This allowed Hitler to invade Poland without worrying about war with the USSR — at least temporarily."},
+      {q:"How did Britain and France respond to the invasion of Poland?", a:"Both countries declared war on Germany on September 3, 1939 — two days after the invasion. This officially expanded the conflict into a world war. However, they did not send troops to defend Poland in time."},
+      {q:"How long did Poland hold out against Germany?", a:"Poland fell in about 5 weeks. Warsaw surrendered on September 28, 1939. Poland was vastly outgunned — Germany used over 1.5 million troops, 2,000 tanks, and 1,000 aircraft. Some Polish forces escaped to continue fighting with the Allies from abroad."},
+      {q:"What happened to Poland after the invasion?", a:"Germany occupied western Poland and the Soviet Union took eastern Poland. The Nazis imposed brutal occupation — murdering Polish intellectuals, priests, and military officers, and eventually establishing concentration camps on Polish soil, including Auschwitz."},
+      {q:"What was the significance of the invasion of Poland?", a:"It was the direct trigger for WWII. It showed that Hitler's aggression would not stop at just one country, and that the policy of 'appeasement' (giving in to his demands) had failed. It also revealed the terrifying effectiveness of Blitzkrieg warfare."},
+      {q:"What was the 'Phoney War'?", a:"After France and Britain declared war on Germany following the Poland invasion, there was a strange period of almost no fighting in Western Europe (September 1939 – April 1940). This quiet lull before the storm became known as the 'Phoney War.'"}
+    ],
+    quiz:[
+      {q:"On what date did Germany invade Poland, starting WWII?", opts:["August 23, 1939","September 1, 1939","September 3, 1939","October 1, 1939"], ans:1, exp:"Germany invaded Poland on September 1, 1939, which is the official start of World War II in Europe."},
+      {q:"What does 'Blitzkrieg' mean in English?", opts:["Total war","Lightning war","Night attack","Storm front"], ans:1, exp:"Blitzkrieg means 'lightning war' — a fast, coordinated attack using tanks, planes, and motorized infantry moving together at high speed."},
+      {q:"What was the Molotov-Ribbentrop Pact?", opts:["A peace treaty between Germany and France","A secret agreement between Germany and the Soviet Union not to attack each other","A military alliance between Italy and Japan","A trade agreement between the USA and USSR"], ans:1, exp:"The Molotov-Ribbentrop Pact was a secret non-aggression pact between Nazi Germany and the Soviet Union that allowed Germany to invade Poland without fear of Soviet opposition."},
+      {q:"How did Britain and France respond to Germany's invasion of Poland?", opts:["They invaded Germany immediately","They declared war on Germany two days later","They negotiated a peace treaty","They sent troops to defend Warsaw"], ans:1, exp:"Britain and France declared war on Germany on September 3, 1939 — two days after the invasion of Poland."},
+      {q:"Where was the major Nazi concentration camp built on Polish soil?", opts:["Bergen-Belsen","Dachau","Auschwitz","Buchenwald"], ans:2, exp:"Auschwitz, located in occupied Poland, became the largest Nazi concentration and extermination camp, where over 1 million people were killed."},
+      {q:"What was the 'Phoney War'?", opts:["Germany's propaganda campaign","A fake invasion of Britain","A quiet period with little fighting after Poland fell","A secret German plan to invade France"], ans:2, exp:"The 'Phoney War' was the period from September 1939 to April 1940 when Britain and France were officially at war with Germany but almost no fighting occurred in Western Europe."},
+      {q:"Which country also invaded Poland from the east in September 1939?", opts:["Italy","France","Japan","Soviet Union"], ans:3, exp:"The Soviet Union invaded Poland from the east on September 17, 1939, as secretly agreed in the Molotov-Ribbentrop Pact."}
+    ]
+  },
+  pearl:{
+    title:"Pearl Harbor",
+    icon:"💥",
+    cards:[
+      {q:"When was Pearl Harbor attacked?", a:"December 7, 1941 — a date President Roosevelt called 'a date which will live in infamy.' The surprise attack began at 7:48 AM Hawaiian time and lasted about two hours."},
+      {q:"Where is Pearl Harbor?", a:"Pearl Harbor is a U.S. naval base on the island of Oahu, Hawaii. In 1941, Hawaii was a U.S. territory (not yet a state). The base was home to the U.S. Pacific Fleet."},
+      {q:"Who attacked Pearl Harbor and why?", a:"Imperial Japan launched the attack. Japan wanted to control resources in Southeast Asia (oil, rubber, metals) and feared the U.S. Pacific Fleet would interfere. The attack was intended to cripple American naval power so Japan could expand freely."},
+      {q:"What were the American losses at Pearl Harbor?", a:"2,403 Americans were killed and 1,178 wounded. 188 aircraft were destroyed. 8 battleships were damaged or sunk, including the USS Arizona and USS Oklahoma. The USS Arizona remains at the bottom of Pearl Harbor as a memorial today."},
+      {q:"What did the U.S. do after Pearl Harbor?", a:"On December 8, 1941, Congress declared war on Japan with only one dissenting vote. On December 11, Germany and Italy (Japan's allies) declared war on the U.S., bringing America fully into WWII on both fronts — the Pacific and Europe."},
+      {q:"What Japanese aircraft carriers participated in the attack?", a:"Japan launched the attack from six aircraft carriers — Akagi, Kaga, Soryu, Hiryu, Shokaku, and Zuikaku — carrying about 353 planes in two waves. Crucially, the U.S. aircraft carriers were not in port that day and survived."},
+      {q:"Why did the U.S. aircraft carriers surviving matter?", a:"The U.S. aircraft carriers were at sea on December 7 and were not destroyed. Aircraft carriers — not battleships — proved to be the decisive naval weapon of WWII. Their survival allowed the U.S. to fight back effectively in battles like Midway (1942)."},
+      {q:"What was the Doolittle Raid?", a:"On April 18, 1942, 16 B-25 bombers led by Lt. Col. Jimmy Doolittle launched from the aircraft carrier USS Hornet and bombed Tokyo. While the damage was minimal, it was a huge morale boost for Americans and proved Japan was not untouchable."},
+      {q:"What was Executive Order 9066?", a:"After Pearl Harbor, anti-Japanese fear led President Roosevelt to sign Executive Order 9066 in February 1942, forcing about 120,000 Japanese Americans (many born in the U.S.) into internment camps. This is now recognized as a serious violation of civil rights."}
+    ],
+    quiz:[
+      {q:"On what date was Pearl Harbor attacked?", opts:["November 7, 1941","December 7, 1941","December 8, 1941","January 7, 1942"], ans:1, exp:"Japan attacked Pearl Harbor on December 7, 1941 — a date President Roosevelt called 'a date which will live in infamy.'"},
+      {q:"How many Americans were killed in the Pearl Harbor attack?", opts:["1,177","1,500","2,403","3,000"], ans:2, exp:"2,403 Americans were killed in the Pearl Harbor attack, along with 1,178 wounded."},
+      {q:"Why did Japan attack Pearl Harbor?", opts:["To retaliate for U.S. bombing of Tokyo","To cripple the U.S. Pacific Fleet so Japan could expand in Asia","Because the U.S. declared war first","To capture the Hawaiian Islands"], ans:1, exp:"Japan attacked to cripple the U.S. Pacific Fleet, preventing American interference with Japanese expansion into Southeast Asia for oil, rubber, and other resources."},
+      {q:"What did Congress do on December 8, 1941?", opts:["Declared war on Germany","Declared war on Japan","Sent troops to Pearl Harbor","Signed a peace treaty with Japan"], ans:1, exp:"The day after Pearl Harbor, Congress declared war on Japan with only one dissenting vote, bringing the U.S. into WWII."},
+      {q:"Why was it significant that the U.S. aircraft carriers survived Pearl Harbor?", opts:["Aircraft carriers carried more troops","Aircraft carriers, not battleships, became the decisive naval weapon","Carriers were needed to transport goods","Carriers were faster than battleships"], ans:1, exp:"Aircraft carriers proved decisive in Pacific naval warfare. Their survival allowed the U.S. to fight back at the Battle of Midway and other crucial engagements."},
+      {q:"What was Executive Order 9066?", opts:["The declaration of war on Japan","An order to rebuild the Pacific Fleet","An order forcing Japanese Americans into internment camps","A plan to bomb Japan"], ans:2, exp:"Executive Order 9066 forced about 120,000 Japanese Americans into internment camps. It is now recognized as a serious violation of civil rights and liberties."},
+      {q:"Which U.S. battleship sunk at Pearl Harbor is now a memorial?", opts:["USS Missouri","USS Arizona","USS Oklahoma","USS Nevada"], ans:1, exp:"The USS Arizona sank with 1,177 crew members aboard. It remains on the ocean floor and is now a national memorial visited by millions each year."},
+      {q:"What was the Doolittle Raid?", opts:["Japan's attack on Pearl Harbor","A U.S. bombing mission over Tokyo in 1942","The Allied invasion of France","A naval battle near Midway"], ans:1, exp:"The Doolittle Raid on April 18, 1942 sent 16 B-25 bombers to bomb Tokyo, boosting American morale and proving Japan could be hit on its home soil."}
+    ]
+  },
+  holocaust:{
+    title:"The Holocaust",
+    icon:"✡️",
+    cards:[
+      {q:"What was the Holocaust?", a:"The Holocaust was the systematic, state-sponsored murder of six million Jews — about two-thirds of Europe's Jewish population — by the Nazi regime from 1933–1945. The Nazis also targeted and killed millions of others including Roma, people with disabilities, LGBTQ+ individuals, and political prisoners."},
+      {q:"What was Nazi antisemitism?", a:"Antisemitism is hatred and prejudice against Jewish people. The Nazis blamed Jewish people for Germany's problems — including losing WWI and economic troubles. Nazi propaganda portrayed Jewish people as subhuman and dangerous. This hatred was legally codified in the Nuremberg Laws (1935)."},
+      {q:"What were the Nuremberg Laws?", a:"Laws passed in Germany in 1935 that stripped Jewish people of their citizenship and rights. Jewish people could not marry non-Jews, hold government jobs, or attend German schools. These laws made Jews second-class 'subjects' — a key step in the process of persecution."},
+      {q:"What was Kristallnacht?", a:"'The Night of Broken Glass' — November 9–10, 1938. Nazi mobs destroyed over 7,500 Jewish businesses, burned 1,400 synagogues, killed nearly 100 Jewish people, and arrested about 30,000 Jewish men. It was a dramatic escalation of Nazi violence against Jews, organized by the government."},
+      {q:"What were ghettos in WWII?", a:"Sections of cities where Nazis forced Jewish people to live in severely overcrowded and inhumane conditions. The largest was the Warsaw Ghetto in Poland, holding over 400,000 people. People suffered from starvation, disease, and brutal treatment. Ghettos were often a step before deportation to death camps."},
+      {q:"What were concentration camps and death camps?", a:"Concentration camps were prison camps where Jews and others were held under brutal conditions, used as forced labor, and died from starvation and disease. Death camps (like Auschwitz-Birkenau, Treblinka, Sobibor) were built specifically to kill people on an industrial scale using gas chambers. Six main death camps were all in occupied Poland."},
+      {q:"What was the 'Final Solution'?", a:"The 'Final Solution to the Jewish Question' was the Nazi plan to systematically murder all Jews in Europe. Decided at the Wannsee Conference in January 1942, it led to the construction of death camps and the deportation and murder of millions of Jewish people across Europe."},
+      {q:"What was Auschwitz?", a:"Auschwitz-Birkenau was the largest Nazi concentration and extermination camp complex, located in occupied Poland. Over 1.1 million people — mostly Jewish — were killed there, primarily in gas chambers. It became the most powerful symbol of the Holocaust. Soviet forces liberated Auschwitz on January 27, 1945."},
+      {q:"Who were the Einsatzgruppen?", a:"Mobile killing squads of the SS and police that followed the German army into the Soviet Union beginning in 1941. They rounded up and shot Jewish people en masse in occupied Soviet territories. At Babi Yar, Ukraine, they shot over 33,000 Jewish people in just two days (September 29–30, 1941)."},
+      {q:"What were the Nuremberg Trials?", a:"After WWII ended, surviving Nazi leaders were put on trial by the Allied powers in Nuremberg, Germany (1945–1946). They were charged with war crimes and crimes against humanity. 12 Nazi leaders were sentenced to death. The trials established the important legal principle that following orders was not a defense for committing atrocities."},
+      {q:"Who was Anne Frank?", a:"Anne Frank was a 13-year-old Jewish girl from Germany whose family hid in a secret annex in Amsterdam for two years. She kept a diary of her life in hiding. She was discovered by Nazis in 1944 and died in Bergen-Belsen concentration camp in 1945. Her diary, 'The Diary of a Young Girl,' was published after the war and became one of the most-read books about the Holocaust."},
+      {q:"What does 'Never Again' mean in the context of the Holocaust?", a:"'Never Again' is a phrase adopted after the Holocaust to express the commitment that such a genocide should never be allowed to happen again. It is a reminder of the importance of standing up to hatred, prejudice, and discrimination — and of the responsibility of governments and people worldwide to prevent genocide."}
+    ],
+    quiz:[
+      {q:"Approximately how many Jewish people were killed in the Holocaust?", opts:["2 million","4 million","6 million","10 million"], ans:2, exp:"Six million Jewish people were killed in the Holocaust — about two-thirds of all the Jews living in Europe before WWII."},
+      {q:"What were the Nuremberg Laws (1935)?", opts:["Laws that started the war","Laws that stripped Jewish Germans of citizenship and rights","Laws that established concentration camps","Laws punishing Nazi war criminals"], ans:1, exp:"The Nuremberg Laws stripped Jewish people of German citizenship, banned marriage between Jews and non-Jews, and removed many civil rights — a critical step in Nazi persecution."},
+      {q:"What was Kristallnacht?", opts:["A Nazi military victory","A night when Nazi mobs destroyed Jewish businesses and synagogues","The liberation of Auschwitz","The deportation of Jews to death camps"], ans:1, exp:"Kristallnacht ('Night of Broken Glass') on November 9–10, 1938 saw Nazis destroy 7,500+ Jewish businesses, burn 1,400 synagogues, and arrest 30,000 Jewish men."},
+      {q:"Where were the six main Nazi death camps located?", opts:["Germany","France","Occupied Poland","Austria"], ans:2, exp:"All six major Nazi death camps — including Auschwitz-Birkenau, Treblinka, and Sobibor — were built in Nazi-occupied Poland."},
+      {q:"What was the 'Final Solution'?", opts:["Germany's plan to win the war quickly","The Nazi plan to systematically murder all Jews in Europe","A peace plan proposed by the Allies","The liberation of concentration camps"], ans:1, exp:"The 'Final Solution to the Jewish Question' was the Nazi program for the systematic murder of all European Jews, decided at the Wannsee Conference in January 1942."},
+      {q:"What did Anne Frank do while in hiding?", opts:["Led a resistance movement","Escaped to England","Kept a diary that became famous","Helped other Jews escape"], ans:2, exp:"Anne Frank kept a detailed diary of her life hiding in a secret annex in Amsterdam. After her death in Bergen-Belsen, her diary was published and became one of the most-read accounts of the Holocaust."},
+      {q:"What was established as a legal principle at the Nuremberg Trials?", opts:["That Germany had to pay war reparations","That following orders was NOT a valid defense for committing atrocities","That all Nazi leaders would be executed","That the Allies could occupy Germany"], ans:1, exp:"The Nuremberg Trials established the crucial legal principle that soldiers and officials cannot escape responsibility for war crimes and crimes against humanity by claiming they were just following orders."},
+      {q:"Which camp was liberated by Soviet forces on January 27, 1945?", opts:["Dachau","Bergen-Belsen","Auschwitz-Birkenau","Buchenwald"], ans:2, exp:"Soviet forces liberated Auschwitz-Birkenau on January 27, 1945 — now observed internationally as Holocaust Remembrance Day. Over 1.1 million people had been killed there."},
+      {q:"What were ghettos used for in WWII?", opts:["Housing German soldiers","Forced, overcrowded living areas for Jewish people before deportation","Training camps for the Gestapo","Storage areas for stolen goods"], ans:1, exp:"Ghettos were overcrowded, sealed-off sections of cities where Nazis forced Jewish people to live in terrible conditions. They were typically a step before deportation to concentration or death camps."}
+    ]
+  }
+};
+
+function showHistTopic(topicKey){
+  currentHistTopic = topicKey;
+  const topic = HIST_TOPICS[topicKey];
+  showScreen('history-topic');
+  document.getElementById('app-title').textContent = topic.icon+' '+topic.title;
+  document.getElementById('app-subtitle').textContent = 'World War II';
+  setHistMode('guide');
+}
+
+function setHistMode(mode){
+  currentHistMode = mode;
+  document.querySelectorAll('.hist-mode-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  ['guide','flashcard','quiz'].forEach(m=>{
+    document.getElementById('hist-mode-'+m).classList.toggle('hidden', m!==mode);
+  });
+  if(mode==='guide') renderHistGuide();
+  else if(mode==='flashcard') initHFlashcard();
+  else if(mode==='quiz') startHQuiz();
+}
+
+// ── HISTORY STUDY GUIDE RENDERER ──
+function renderHistGuide(){
+  const topic = HIST_TOPICS[currentHistTopic];
+  const el = document.getElementById('hist-mode-guide');
+
+  const guides = {
+    leaders: renderLeadersGuide,
+    poland: renderPolandGuide,
+    pearl: renderPearlGuide,
+    holocaust: renderHolocaustGuide
+  };
+  el.innerHTML = '';
+  guides[currentHistTopic](el);
+}
+
+function renderLeadersGuide(el){
+  el.innerHTML = `<div class="study-guide">
+    <div class="sg-section">
+      <div class="sg-section-title">The Allied Powers Leaders</div>
+      <div class="sg-card"><span class="sg-badge badge-ally">Allied · USA</span><div class="sg-card-title">Franklin D. Roosevelt (FDR)</div><div class="sg-card-body">President of the United States (1933–1945). Led the U.S. through the Great Depression and into WWII after Pearl Harbor. Worked closely with Churchill and Stalin as one of the "Big Three." Died April 1945, just before Germany's surrender. <em>Key act:</em> Led the Lend-Lease program supplying Allies with war materials.</div></div>
+      <div class="sg-card"><span class="sg-badge badge-ally">Allied · Great Britain</span><div class="sg-card-title">Winston Churchill</div><div class="sg-card-body">Prime Minister of Great Britain (1940–1945). Refused to negotiate with Hitler. Famous for his powerful speeches that rallied British morale. <em>Famous quote:</em> "We shall fight on the beaches… we shall never surrender."</div></div>
+      <div class="sg-card"><span class="sg-badge badge-ally">Allied · Soviet Union</span><div class="sg-card-title">Joseph Stalin</div><div class="sg-card-body">Dictator of the Soviet Union. Initially signed a non-aggression pact with Hitler, but joined the Allies after Germany invaded the USSR in 1941 (Operation Barbarossa). The USSR suffered over 20 million deaths — more than any other country. <em>Key battle:</em> Battle of Stalingrad — the turning point on the Eastern Front.</div></div>
+      <div class="sg-card"><span class="sg-badge badge-ally">Allied · France</span><div class="sg-card-title">Charles de Gaulle</div><div class="sg-card-body">French general who led the Free French Forces from exile in London after France fell to Germany in June 1940. Became a symbol of French resistance. Led the liberation of Paris in August 1944.</div></div>
+    </div>
+    <div class="sg-section">
+      <div class="sg-section-title">The Axis Powers Leaders</div>
+      <div class="sg-card"><span class="sg-badge badge-axis">Axis · Germany</span><div class="sg-card-title">Adolf Hitler</div><div class="sg-card-body">Dictator (Führer) of Nazi Germany (1933–1945). Founded the Nazi party, became Chancellor in 1933 then absolute dictator. Started WWII by invading Poland. Responsible for the Holocaust and the deaths of tens of millions. Died by suicide on April 30, 1945 in Berlin.</div></div>
+      <div class="sg-card"><span class="sg-badge badge-axis">Axis · Italy</span><div class="sg-card-title">Benito Mussolini</div><div class="sg-card-body">Fascist dictator of Italy ("Il Duce"). Allied with Hitler but Italy's military performed poorly. Italy switched to the Allied side in 1943 after Allied invasion. Mussolini was captured and executed by Italian partisans in April 1945.</div></div>
+      <div class="sg-card"><span class="sg-badge badge-axis">Axis · Japan</span><div class="sg-card-title">Emperor Hirohito &amp; Prime Minister Tojo</div><div class="sg-card-body">Emperor Hirohito was the symbolic ruler of Imperial Japan. Prime Minister Hideki Tojo held real military power and approved the attack on Pearl Harbor. Tojo was later tried and executed as a war criminal after Japan's defeat.</div></div>
+    </div>
+    <div class="sg-section">
+      <div class="sg-section-title">Key Concept: The "Big Three"</div>
+      <div class="sg-card"><div class="sg-card-body">Roosevelt (USA) + Churchill (Britain) + Stalin (USSR) = The "Big Three" Allied leaders. They met at:<ul><li><strong>Tehran Conference (1943)</strong> — First meeting of all three; planned the invasion of France (D-Day)</li><li><strong>Yalta Conference (February 1945)</strong> — Discussed the postwar world, dividing Germany, and creating the United Nations</li></ul></div></div>
+    </div>
+  </div>`;
+}
+
+function renderPolandGuide(el){
+  el.innerHTML = `<div class="study-guide">
+    <div class="sg-section">
+      <div class="sg-section-title">Key Facts</div>
+      <div class="sg-card"><span class="sg-badge badge-event">Date</span><div class="sg-card-title">September 1, 1939 — Start of WWII</div><div class="sg-card-body">Germany invaded Poland at dawn with over 1.5 million troops, 2,000 tanks, and 1,000 aircraft. Britain and France declared war on Germany two days later, on September 3, officially beginning World War II.</div></div>
+      <div class="sg-card"><span class="sg-badge badge-event">Tactic</span><div class="sg-card-title">Blitzkrieg — "Lightning War"</div><div class="sg-card-body">Germany's revolutionary new military tactic: fast-moving tanks and motorized infantry supported by dive bombers (Stukas), moving faster than defenders could react. Poland's cavalry and older army were no match for this coordinated modern assault.</div></div>
+      <div class="sg-card"><span class="sg-badge badge-event">Secret Agreement</span><div class="sg-card-title">Molotov-Ribbentrop Pact (August 1939)</div><div class="sg-card-body">A secret non-aggression pact between Nazi Germany and the Soviet Union. It included a secret protocol dividing Eastern Europe between them. This freed Hitler to invade Poland without Soviet opposition. The Soviet Union invaded Poland from the east on September 17, 1939.</div></div>
+    </div>
+    <div class="sg-section">
+      <div class="sg-section-title">Timeline</div>
+      <div class="sg-card"><div class="sg-card-body">
+        <div class="timeline-item"><div class="timeline-date">Aug 23, 1939</div><div class="timeline-text"><strong>Molotov-Ribbentrop Pact</strong> signed — Germany and USSR agree not to fight each other</div></div>
+        <div class="timeline-item"><div class="timeline-date">Sep 1, 1939</div><div class="timeline-text"><strong>Germany invades Poland</strong> from the west using Blitzkrieg tactics</div></div>
+        <div class="timeline-item"><div class="timeline-date">Sep 3, 1939</div><div class="timeline-text"><strong>Britain and France declare war</strong> on Germany — WWII officially begins</div></div>
+        <div class="timeline-item"><div class="timeline-date">Sep 17, 1939</div><div class="timeline-text"><strong>Soviet Union invades Poland</strong> from the east as agreed in the secret pact</div></div>
+        <div class="timeline-item"><div class="timeline-date">Sep 28, 1939</div><div class="timeline-text"><strong>Warsaw surrenders</strong> — Poland falls after just 5 weeks of fighting</div></div>
+        <div class="timeline-item"><div class="timeline-date">Sep–Apr 1940</div><div class="timeline-text"><strong>The "Phoney War"</strong> — little fighting in Western Europe despite declarations of war</div></div>
+      </div></div>
+    </div>
+    <div class="sg-section">
+      <div class="sg-section-title">Why It Matters</div>
+      <div class="sg-card"><div class="sg-card-body"><ul>
+        <li>The invasion proved that appeasement — giving Hitler what he wanted to avoid war — had failed</li>
+        <li>It introduced the world to the devastating effectiveness of Blitzkrieg warfare</li>
+        <li>Poland became the site of some of the worst Nazi atrocities, including the Auschwitz death camp</li>
+        <li>It directly triggered WWII — the deadliest conflict in human history</li>
+      </ul></div></div>
+    </div>
+  </div>`;
+}
+
+function renderPearlGuide(el){
+  el.innerHTML = `<div class="study-guide">
+    <div class="sg-section">
+      <div class="sg-section-title">The Attack</div>
+      <div class="sg-card"><span class="sg-badge badge-event">December 7, 1941 — "A Date Which Will Live in Infamy"</span><div class="sg-card-title">The Surprise Attack</div><div class="sg-card-body">At 7:48 AM, 353 Japanese planes launched from 6 aircraft carriers attacked the U.S. naval base at Pearl Harbor, Hawaii in two waves. The attack lasted about two hours and caught American forces completely off guard.</div></div>
+      <div class="sg-card"><span class="sg-badge badge-event">Losses</span><div class="sg-card-title">American Casualties</div><div class="sg-card-body"><ul><li>2,403 Americans killed</li><li>1,178 wounded</li><li>188 aircraft destroyed</li><li>8 battleships damaged or sunk (including the USS Arizona and USS Oklahoma)</li><li>Crucially: All 3 U.S. aircraft carriers were at sea and survived</li></ul></div></div>
+    </div>
+    <div class="sg-section">
+      <div class="sg-section-title">Timeline</div>
+      <div class="sg-card"><div class="sg-card-body">
+        <div class="timeline-item"><div class="timeline-date">Dec 7, 1941</div><div class="timeline-text"><strong>Pearl Harbor attacked</strong> — Japan launches surprise air strike on the U.S. Pacific Fleet</div></div>
+        <div class="timeline-item"><div class="timeline-date">Dec 8, 1941</div><div class="timeline-text"><strong>U.S. declares war on Japan</strong> — Congress votes 388-1 (one dissenting vote)</div></div>
+        <div class="timeline-item"><div class="timeline-date">Dec 11, 1941</div><div class="timeline-text"><strong>Germany and Italy declare war on the U.S.</strong> — America now at war on two fronts</div></div>
+        <div class="timeline-item"><div class="timeline-date">Feb 1942</div><div class="timeline-text"><strong>Executive Order 9066</strong> — Roosevelt orders internment of 120,000 Japanese Americans</div></div>
+        <div class="timeline-item"><div class="timeline-date">Apr 18, 1942</div><div class="timeline-text"><strong>Doolittle Raid</strong> — U.S. bombers strike Tokyo, boosting American morale</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jun 1942</div><div class="timeline-text"><strong>Battle of Midway</strong> — U.S. navy defeats Japan, turning point in Pacific War</div></div>
+      </div></div>
+    </div>
+    <div class="sg-section">
+      <div class="sg-section-title">Why It Matters</div>
+      <div class="sg-card"><div class="sg-card-body"><ul>
+        <li>Brought the United States into WWII — dramatically changing the balance of power against the Axis</li>
+        <li>United Americans who had been divided over whether to enter the war</li>
+        <li>The survival of U.S. aircraft carriers proved critical — carriers, not battleships, won the Pacific war</li>
+        <li>Led to the unjust internment of 120,000 Japanese Americans — a major civil rights violation</li>
+        <li>The USS Arizona Memorial at Pearl Harbor honors the 1,177 sailors who died aboard it</li>
+      </ul></div></div>
+    </div>
+  </div>`;
+}
+
+function renderHolocaustGuide(el){
+  el.innerHTML = `<div class="study-guide">
+    <div class="sg-section">
+      <div class="sg-section-title">Overview</div>
+      <div class="sg-card"><div class="sg-card-body">The Holocaust was the systematic, government-organized murder of 6 million Jewish people and millions of others by the Nazi regime between 1933 and 1945. It did not happen overnight — it was a step-by-step process of persecution, isolation, and ultimately mass murder.</div></div>
+    </div>
+    <div class="sg-section">
+      <div class="sg-section-title">Step by Step: How the Holocaust Happened</div>
+      <div class="sg-card"><div class="sg-card-body">
+        <div class="timeline-item"><div class="timeline-date">1933</div><div class="timeline-text"><strong>Hitler becomes Chancellor</strong> — Nazis begin boycotting Jewish businesses; Jews are fired from government jobs</div></div>
+        <div class="timeline-item"><div class="timeline-date">1935</div><div class="timeline-text"><strong>Nuremberg Laws</strong> — Jews stripped of citizenship; marriages between Jews and non-Jews banned</div></div>
+        <div class="timeline-item"><div class="timeline-date">Nov 1938</div><div class="timeline-text"><strong>Kristallnacht</strong> — "Night of Broken Glass": 7,500 businesses destroyed, 1,400 synagogues burned, 30,000 arrested</div></div>
+        <div class="timeline-item"><div class="timeline-date">1939–41</div><div class="timeline-text"><strong>Ghettos established</strong> — Jews forced into overcrowded, sealed districts across occupied Europe; Warsaw Ghetto held 400,000+ people</div></div>
+        <div class="timeline-item"><div class="timeline-date">1941</div><div class="timeline-text"><strong>Einsatzgruppen</strong> — Mobile SS killing squads shoot over 1 million Jews in Eastern Europe; Babi Yar massacre: 33,771 killed in 2 days</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jan 1942</div><div class="timeline-text"><strong>Wannsee Conference</strong> — Nazi leaders formally plan the "Final Solution" — systematic murder of all European Jews</div></div>
+        <div class="timeline-item"><div class="timeline-date">1942–44</div><div class="timeline-text"><strong>Death camps operate</strong> — Auschwitz-Birkenau, Treblinka, Sobibor and others kill millions using gas chambers</div></div>
+        <div class="timeline-item"><div class="timeline-date">Jan 27, 1945</div><div class="timeline-text"><strong>Auschwitz liberated</strong> by Soviet forces; Allied forces liberate other camps through spring 1945</div></div>
+        <div class="timeline-item"><div class="timeline-date">1945–46</div><div class="timeline-text"><strong>Nuremberg Trials</strong> — Nazi leaders tried for war crimes; 12 sentenced to death; "following orders" not a valid defense</div></div>
+      </div></div>
+    </div>
+    <div class="sg-section">
+      <div class="sg-section-title">Key People & Places</div>
+      <div class="sg-card"><span class="sg-badge badge-person">Victim &amp; Symbol</span><div class="sg-card-title">Anne Frank</div><div class="sg-card-body">A 13-year-old Jewish girl who hid with her family in a secret annex in Amsterdam for 2 years. She kept a diary of life in hiding. Discovered in 1944, she died in Bergen-Belsen in February 1945, age 15. Her diary became one of the most-read books in history.</div></div>
+      <div class="sg-card"><span class="sg-badge badge-person">Place</span><div class="sg-card-title">Auschwitz-Birkenau</div><div class="sg-card-body">The largest Nazi concentration and death camp, located in occupied Poland. Over 1.1 million people — mostly Jewish — were murdered here, primarily in gas chambers. Liberated January 27, 1945 — now International Holocaust Remembrance Day.</div></div>
+    </div>
+    <div class="sg-section">
+      <div class="sg-section-title">Important Terms</div>
+      <div class="sg-card"><div class="sg-card-body"><ul>
+        <li><strong>Antisemitism</strong> — Prejudice, discrimination, or hatred against Jewish people</li>
+        <li><strong>Genocide</strong> — The deliberate killing of a large group of people based on their identity</li>
+        <li><strong>Concentration camp</strong> — Prison camps where people were held under brutal conditions and used as forced labor</li>
+        <li><strong>Death camp / Extermination camp</strong> — Camps built specifically to murder people on an industrial scale</li>
+        <li><strong>The Final Solution</strong> — The Nazi plan to systematically kill all Jews in Europe</li>
+        <li><strong>"Never Again"</strong> — Phrase expressing the commitment to prevent future genocides</li>
+      </ul></div></div>
+    </div>
+  </div>`;
+}
+
+// ── HISTORY FLASHCARDS ──
+let hfcDeck=[], hfcIdx=0, hfcFlipped=false;
+function initHFlashcard(){
+  const topic = HIST_TOPICS[currentHistTopic];
+  hfcDeck = shuffle([...topic.cards]);
+  hfcIdx=0; hfcFlipped=false; showHCard();
+}
+function showHCard(){
+  const c = hfcDeck[hfcIdx];
+  document.getElementById('hfc-inner').classList.remove('flipped'); hfcFlipped=false;
+  document.getElementById('hfc-q').textContent = c.q;
+  document.getElementById('hfc-a').textContent = c.a;
+  const badge = HIST_TOPICS[currentHistTopic].title;
+  document.getElementById('hfc-badge').textContent = badge;
+  document.getElementById('hfc-badge-b').textContent = badge;
+  document.getElementById('hfc-progress').style.width = Math.round((hfcIdx/hfcDeck.length)*100)+'%';
+  document.getElementById('hfc-count').textContent = (hfcIdx+1)+'/'+hfcDeck.length;
+}
+function flipHCard(){ hfcFlipped=!hfcFlipped; document.getElementById('hfc-inner').classList.toggle('flipped',hfcFlipped); }
+function nextHCard(){ hfcIdx=(hfcIdx+1)%hfcDeck.length; showHCard(); }
+function prevHCard(){ hfcIdx=(hfcIdx-1+hfcDeck.length)%hfcDeck.length; showHCard(); }
+function shuffleHCards(){ hfcDeck=shuffle([...HIST_TOPICS[currentHistTopic].cards]); hfcIdx=0; showHCard(); }
+
+// ── HISTORY QUIZ ──
+let hqDeck=[], hqIdx=0, hqCor=0, hqWr=0;
+function startHQuiz(){
+  const topic = HIST_TOPICS[currentHistTopic];
+  hqDeck = shuffle([...topic.quiz]);
+  hqIdx=0; hqCor=0; hqWr=0;
+  document.getElementById('hq-main').classList.remove('hidden');
+  document.getElementById('hq-result').classList.remove('show');
+  document.getElementById('hq-label').textContent = topic.icon+' '+topic.title;
+  updateHScore(); showHQuestion();
+}
+function updateHScore(){
+  document.getElementById('hq-c').textContent='✓ '+hqCor;
+  document.getElementById('hq-w').textContent='✗ '+hqWr;
+  document.getElementById('hq-l').textContent=(hqDeck.length-hqIdx)+' left';
+}
+function showHQuestion(){
+  if(hqIdx>=hqDeck.length){ finishHQuiz(); return; }
+  const q = hqDeck[hqIdx];
+  document.getElementById('hq-q').textContent = q.q;
+  document.getElementById('hq-fb').className = 'hist-quiz-fb';
+  document.getElementById('hq-next').className = 'hist-quiz-next';
+  const opts = document.getElementById('hq-opts');
+  opts.innerHTML='';
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='hist-quiz-opt';
+    btn.textContent=opt;
+    btn.onclick=()=>selectHOpt(btn, i===q.ans, q.exp);
+    opts.appendChild(btn);
+  });
+}
+function selectHOpt(btn, correct, exp){
+  document.querySelectorAll('.hist-quiz-opt').forEach(b=>{b.classList.add('locked');b.onclick=null;});
+  const fb=document.getElementById('hq-fb');
+  if(correct){ btn.classList.add('correct'); hqCor++; fb.className='hist-quiz-fb show correct'; }
+  else        { btn.classList.add('wrong');   hqWr++;  fb.className='hist-quiz-fb show wrong'; }
+  fb.textContent = exp;
+  hqIdx++; updateHScore();
+  document.getElementById('hq-next').className='hist-quiz-next show';
+}
+function nextHQuiz(){ showHQuestion(); }
+function finishHQuiz(){
+  document.getElementById('hq-main').classList.add('hidden');
+  const r=document.getElementById('hq-result');
+  r.classList.add('show');
+  const total=hqCor+hqWr;
+  const pct=total>0?Math.round((hqCor/total)*100):0;
+  document.getElementById('hq-re').textContent=pct>=80?'🎉':pct>=60?'💪':'📚';
+  document.getElementById('hq-rt').textContent=pct>=80?'Excellent!':pct>=60?'Good work!':'Keep studying!';
+  document.getElementById('hq-rs').textContent=hqCor+' correct out of '+total+' — '+pct+'%';
+}
+
+// ══════════ VOCAB ENGINE ══════════
+const W=[
+  {u:13,w:"adapt",      p:"v",    d:"to change or adjust to fit new conditions or a new purpose; to make suitable",                   s:"adjust, modify, alter, conform, acclimate",         a:"resist, refuse, stay fixed, remain rigid"},
+  {u:13,w:"attest",     p:"v",    d:"to declare or certify to be true or genuine; to bear witness to; to give proof of",              s:"certify, confirm, verify, testify, vouch",           a:"deny, contradict, disprove, refute, rebut"},
+  {u:13,w:"dovetail",   p:"v",    d:"to fit together neatly; to connect or combine in a perfectly suited way",                        s:"mesh, connect, harmonize, interlock, coordinate",    a:"clash, conflict, diverge, mismatch, separate"},
+  {u:13,w:"enormity",   p:"n",    d:"the great wickedness or seriousness of something terrible; immense scope of an offense",          s:"outrageousness, wickedness, monstrousness, vastness", a:"mildness, insignificance, triviality, smallness"},
+  {u:13,w:"falter",     p:"v",    d:"to hesitate or stumble; to lose strength or purpose; to speak or act hesitatingly",              s:"hesitate, waver, stumble, stagger, vacillate",       a:"persist, continue, advance, press on, resolve"},
+  {u:13,w:"foreboding", p:"n",    d:"a strong inner feeling that something bad is going to happen; an omen of misfortune",             s:"premonition, dread, apprehension, omen, misgiving",  a:"confidence, optimism, assurance, hope, cheer"},
+  {u:13,w:"forlorn",    p:"adj",  d:"lonely and sad; deserted and in poor condition; nearly hopeless",                                s:"desolate, abandoned, lonely, wretched, miserable",   a:"cheerful, hopeful, thriving, joyful, contented"},
+  {u:13,w:"haughty",    p:"adj",  d:"having or showing an attitude of superiority over others; disdainfully proud",                   s:"arrogant, proud, contemptuous, imperious, lofty",    a:"humble, modest, meek, unassuming, respectful"},
+  {u:13,w:"impediment", p:"n",    d:"something that makes progress difficult; an obstacle or obstruction; a speech defect",           s:"obstacle, hindrance, barrier, obstruction, stumbling block", a:"aid, help, advantage, asset, benefit"},
+  {u:13,w:"imperative", p:"adj",  d:"absolutely necessary or urgent; a rule or principle that must be obeyed; a command",             s:"essential, crucial, urgent, mandatory, necessary",   a:"optional, unnecessary, unimportant, trivial, minor"},
+  {u:13,w:"loiter",     p:"v",    d:"to stand around without purpose; to travel slowly and idly; to linger",                          s:"linger, dawdle, idle, lounge, hang around",          a:"hurry, rush, hasten, proceed, bustle"},
+  {u:13,w:"malinger",   p:"v",    d:"to pretend to be sick or injured in order to avoid duty or work",                                s:"shirk, fake illness, dodge, feign, slack",            a:"strive, work, labor, persevere, perform"},
+  {u:13,w:"pithy",      p:"adj",  d:"brief, forceful, and meaningful in expression; concise and full of substance",                   s:"concise, terse, succinct, brief, pointed",           a:"wordy, verbose, long-winded, rambling, vague"},
+  {u:13,w:"plunder",    p:"v",    d:"to steal by force, especially during a war; goods stolen or taken by force",                     s:"loot, pillage, ransack, rob, raid",                  a:"protect, restore, return, preserve, give"},
+  {u:13,w:"simper",     p:"v",    d:"to smile in an affectedly coy or ingratiating manner; to say something with a silly smile",      s:"smirk, giggle coyly, mince, preen, grin foolishly",  a:"scowl, frown, glower, grimace"},
+  {u:13,w:"steadfast",  p:"adj",  d:"firm and unwavering in purpose, loyalty, or principle; resolutely determined",                   s:"firm, unwavering, loyal, resolute, dedicated",       a:"wavering, disloyal, fickle, irresolute, unstable"},
+  {u:13,w:"vaunted",    p:"adj",  d:"boasted about or highly praised, often excessively so",                                          s:"boasted, acclaimed, celebrated, ballyhooed, trumpeted", a:"modest, understated, humble, downplayed, ignored"},
+  {u:13,w:"vilify",     p:"v",    d:"to speak very badly of; to slander; to make vicious and defamatory statements about",            s:"slander, defame, malign, smear, denounce",           a:"praise, commend, laud, honor, extol"},
+  {u:13,w:"waif",       p:"n",    d:"a homeless or neglected person, especially a child; something found without an owner",           s:"orphan, stray, vagabond, outcast, foundling",        a:"cherished child, sheltered person, ward"},
+  {u:13,w:"wry",        p:"adj",  d:"using dry, mocking humor that is cleverly understated; twisted or bent to one side",             s:"ironic, sardonic, dry, droll, twisted",              a:"sincere, straightforward, earnest, literal, direct"},
+  {u:14,w:"amplify",    p:"v",    d:"to make larger, stronger, or more detailed; to increase in size, volume, or significance",       s:"expand, enlarge, intensify, magnify, boost",         a:"reduce, diminish, weaken, lessen, minimize"},
+  {u:14,w:"armistice",  p:"n",    d:"a temporary stop to fighting agreed on by all sides; a truce",                                   s:"truce, ceasefire, peace agreement, suspension, halt", a:"war, conflict, fighting, hostilities, battle"},
+  {u:14,w:"arrogant",   p:"adj",  d:"having an exaggerated sense of one's own importance; overbearingly proud and contemptuous",      s:"haughty, conceited, overbearing, pompous, vain",     a:"humble, modest, meek, unassuming, respectful"},
+  {u:14,w:"bland",      p:"adj",  d:"mild and not stimulating or interesting; lacking strong features; dull",                         s:"dull, insipid, tasteless, flat, uninteresting",      a:"exciting, spicy, stimulating, vivid, flavorful"},
+  {u:14,w:"disclaim",   p:"v",    d:"to give up any claim to; to deny any responsibility for or connection with",                     s:"deny, renounce, reject, disown, repudiate",          a:"claim, assert, acknowledge, accept, own"},
+  {u:14,w:"epoch",      p:"n",    d:"a period of time marked by distinctive character or significant events; a memorable era",        s:"era, age, period, time, eon",                        a:"moment, instant, flash, second"},
+  {u:14,w:"estrange",   p:"v",    d:"to cause someone to be no longer friendly or close to another person; to make hostile",          s:"alienate, separate, distance, isolate, divide",      a:"reconcile, unite, befriend, bond, attract"},
+  {u:14,w:"gratify",    p:"v",    d:"to give pleasure or satisfaction to; to fulfill or indulge a desire or need",                    s:"please, satisfy, delight, fulfill, indulge",         a:"displease, frustrate, disappoint, deny, deprive"},
+  {u:14,w:"infinite",   p:"adj",  d:"without limits; boundless; having no end; immeasurably great in extent or degree",              s:"endless, boundless, limitless, vast, immeasurable",  a:"finite, limited, bounded, restricted, measurable"},
+  {u:14,w:"irascible",  p:"adj",  d:"having or showing a tendency to be easily angered; hot-tempered",                               s:"irritable, hot-tempered, touchy, cranky, testy",     a:"calm, even-tempered, easygoing, placid, serene"},
+  {u:14,w:"kindred",    p:"n/adj",d:"a person's relatives; having similar nature, character, or qualities; related",                  s:"related, similar, akin, compatible, like-minded",    a:"unrelated, different, foreign, incompatible, alien"},
+  {u:14,w:"naive",      p:"adj",  d:"too ready to believe things without question; lacking worldly wisdom or sophistication",         s:"innocent, unsophisticated, credulous, gullible, simple", a:"worldly, sophisticated, cynical, shrewd, cunning"},
+  {u:14,w:"niche",      p:"n",    d:"a hollow place in a wall; the specific role suited to a person; a specialized market segment",   s:"recess, alcove, slot, specialty, position",          a:"general area, broad field, mainstream"},
+  {u:14,w:"obliterate", p:"v",    d:"to blot out completely, leaving no traces; to destroy utterly",                                 s:"erase, destroy, wipe out, annihilate, efface",       a:"create, preserve, restore, build, maintain"},
+  {u:14,w:"ramshackle", p:"adj",  d:"in a state of severe disrepair; poorly constructed and likely to fall apart",                   s:"dilapidated, run-down, rickety, tumbledown, shabby", a:"sturdy, sound, solid, well-built, maintained"},
+  {u:14,w:"ransack",    p:"v",    d:"to search thoroughly in order to rob; to search through and disturb everything",                 s:"plunder, loot, pillage, rifle, rummage",             a:"tidy, organize, restore, protect, preserve"},
+  {u:14,w:"rote",       p:"n",    d:"the use of memory with little or no understanding; mechanical repetition without thought",       s:"memorization, routine, repetition, habit, drill",    a:"understanding, comprehension, reasoning, insight"},
+  {u:14,w:"solvent",    p:"adj",  d:"able to pay all of one's debts; having more assets than liabilities",                           s:"financially stable, debt-free, liquid, sound",       a:"insolvent, bankrupt, broke, indebted, ruined"},
+  {u:14,w:"tedious",    p:"adj",  d:"too long, slow, or dull; tiresome and monotonous",                                              s:"boring, dull, monotonous, tiresome, wearisome",      a:"exciting, interesting, engaging, lively, stimulating"},
+  {u:14,w:"vendor",     p:"n",    d:"a person or company that sells goods or services; a peddler or merchant",                       s:"seller, merchant, dealer, peddler, supplier",        a:"buyer, customer, purchaser, consumer, client"},
+  {u:15,w:"abyss",      p:"n",    d:"a bottomless pit; an immeasurably deep chasm; any deep, seemingly bottomless void",              s:"chasm, void, gulf, pit, depths",                     a:"peak, summit, surface, top, height"},
+  {u:15,w:"befall",     p:"v",    d:"to happen to someone, especially something bad; to occur as if by fate",                        s:"happen, occur, come to pass, overtake, strike",      a:"miss, avoid, escape, bypass, spare"},
+  {u:15,w:"crucial",    p:"adj",  d:"of great importance; decisive or critical, especially in the success or failure of something",   s:"vital, critical, decisive, essential, pivotal",      a:"trivial, unimportant, minor, insignificant, negligible"},
+  {u:15,w:"dregs",      p:"n",    d:"the solid matter settling at the bottom of a liquid; the most worthless part; the lowest class", s:"sediment, residue, refuse, scum, outcasts",          a:"cream, best, elite, finest, top"},
+  {u:15,w:"embody",     p:"v",    d:"to give concrete form to an idea; to incorporate; to represent in bodily or material form",      s:"represent, personify, incorporate, express, manifest", a:"exclude, separate, abstract, disembody, ignore"},
+  {u:15,w:"exasperate", p:"v",    d:"to irritate or provoke to a high degree; to try the patience of; to make worse",                s:"irritate, infuriate, aggravate, annoy, provoke",     a:"calm, soothe, pacify, appease, please"},
+  {u:15,w:"fiasco",     p:"n",    d:"a complete and humiliating failure; a total disaster",                                           s:"disaster, failure, catastrophe, debacle, flop",      a:"success, triumph, achievement, victory, win"},
+  {u:15,w:"garnish",    p:"v",    d:"to add decorative or flavorful items to food; to decorate or embellish",                        s:"decorate, adorn, embellish, ornament, trim",         a:"strip, remove, bare, simplify, plain"},
+  {u:15,w:"heritage",   p:"n",    d:"something passed down from ancestors; traditions and values inherited from previous generations", s:"legacy, tradition, inheritance, birthright, history", a:"future, innovation, change, rejection, break"},
+  {u:15,w:"inert",      p:"adj",  d:"lacking the ability to move or act; having no inherent power of action; chemically inactive",   s:"inactive, motionless, dormant, sluggish, lifeless",  a:"active, lively, energetic, reactive, dynamic"},
+  {u:15,w:"mercenary",  p:"adj",  d:"motivated by money or personal gain at the expense of ethics; a soldier hired by a foreign army", s:"greedy, self-serving, venal, opportunistic, acquisitive", a:"altruistic, selfless, idealistic, principled, generous"},
+  {u:15,w:"negligent",  p:"adj",  d:"failing to take proper care; careless or inattentive about duty or obligation",                 s:"careless, neglectful, irresponsible, remiss, lax",   a:"careful, attentive, diligent, responsible, conscientious"},
+  {u:15,w:"oblivion",   p:"n",    d:"the state of being completely forgotten; the state of being unaware or unconscious",             s:"obscurity, forgetfulness, neglect, nothingness, limbo", a:"fame, recognition, consciousness, awareness, remembrance"},
+  {u:15,w:"opus",       p:"n",    d:"a major musical or literary work; a creative work numbered among the works of its composer",    s:"work, composition, piece, creation, masterwork",     a:"minor work, trifle, sketch, fragment"},
+  {u:15,w:"pallid",     p:"adj",  d:"lacking color or vitality; pale or wan; deficient in energy or interest",                      s:"pale, wan, colorless, washed-out, ashen",            a:"ruddy, flushed, vibrant, vivid, colorful"},
+  {u:15,w:"parable",    p:"n",    d:"a short story that teaches a moral or spiritual lesson through analogy or comparison",          s:"fable, allegory, tale, moral story, lesson",         a:"literal account, fact, history, chronicle"},
+  {u:15,w:"rational",   p:"adj",  d:"based on reason or logic; able to think clearly and sensibly; not based on emotion",           s:"logical, reasonable, sensible, sound, lucid",        a:"irrational, illogical, unreasonable, emotional, absurd"},
+  {u:15,w:"reciprocal", p:"adj",  d:"given, felt, or done in return; mutual; corresponding to or complementing each other",         s:"mutual, shared, corresponding, exchanged, two-way",  a:"one-sided, unilateral, unreturned, unequal"},
+  {u:15,w:"stricture",  p:"n",    d:"a severe criticism or restriction; a limiting condition or rule",                              s:"criticism, restriction, censure, constraint, rebuke", a:"praise, freedom, latitude, approval, liberty"},
+  {u:15,w:"veneer",     p:"n",    d:"a thin layer of fine material covering something of poorer quality; an attractive surface hiding less appealing reality", s:"facade, surface, gloss, coating, front", a:"core, substance, reality, depth, interior"}
+];
+
+let curUnit='all', curMode='flashcard';
+const QS={q:{deck:[],idx:0,cor:0,wr:0},s:{deck:[],idx:0,cor:0,wr:0},a:{deck:[],idx:0,cor:0,wr:0}};
+function getWords(){ return curUnit==='all'?W:W.filter(x=>x.u===curUnit); }
+function setUnit(u){
+  curUnit=u;
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{ b.classList.toggle('active',(i===0&&u==='all')||(i===1&&u===13)||(i===2&&u===14)||(i===3&&u===15)); });
+  resetVocab();
+}
+function setMode(m){
+  curMode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  ['flashcard','quiz','syn','ant','match','list'].forEach(id=>{ document.getElementById('mode-'+id).classList.toggle('hidden',id!==m); });
+  resetVocab();
+}
+function resetVocab(){
+  if(curMode==='flashcard') initFlashcard();
+  else if(curMode==='quiz') startQuiz('q');
+  else if(curMode==='syn')  startQuiz('s');
+  else if(curMode==='ant')  startQuiz('a');
+  else if(curMode==='match') resetMatch();
+  else if(curMode==='list')  renderList();
+}
+
+// FLASHCARD
+let fcDeck=[],fcIdx=0,fcFlipped=false;
+function initFlashcard(){ fcDeck=shuffle([...getWords()]); fcIdx=0; fcFlipped=false; showCard(); }
+function showCard(){
+  const w=fcDeck[fcIdx];
+  document.getElementById('fc-inner').classList.remove('flipped'); fcFlipped=false;
+  document.getElementById('fc-word').textContent=w.w;
+  document.getElementById('fc-word-b').textContent=w.w;
+  document.getElementById('fc-pos-b').textContent=w.p;
+  document.getElementById('fc-def').textContent=w.d;
+  document.getElementById('fc-syns').textContent=w.s;
+  document.getElementById('fc-ants').textContent=w.a;
+  const badge='Unit '+w.u;
+  document.getElementById('fc-badge').textContent=badge;
+  document.getElementById('fc-badge-b').textContent=badge;
+  document.getElementById('fc-progress').style.width=Math.round((fcIdx/fcDeck.length)*100)+'%';
+  document.getElementById('fc-count').textContent=(fcIdx+1)+'/'+fcDeck.length;
+}
+function flipCard(){ fcFlipped=!fcFlipped; document.getElementById('fc-inner').classList.toggle('flipped',fcFlipped); }
+function nextCard(){ fcIdx=(fcIdx+1)%fcDeck.length; showCard(); }
+function prevCard(){ fcIdx=(fcIdx-1+fcDeck.length)%fcDeck.length; showCard(); }
+function shuffleCards(){ fcDeck=shuffle([...getWords()]); fcIdx=0; showCard(); }
+
+// QUIZ ENGINE
+function startQuiz(pfx){
+  const qs=QS[pfx]; qs.deck=shuffle([...getWords()]); qs.idx=0; qs.cor=0; qs.wr=0;
+  const mainId=pfx==='q'?'quiz-main':pfx==='s'?'syn-main':'ant-main';
+  document.getElementById(mainId).classList.remove('hidden');
+  document.getElementById(pfx+'-result').classList.remove('show');
+  updateScore(pfx); showQuestion(pfx);
+}
+function updateScore(pfx){
+  const qs=QS[pfx];
+  document.getElementById(pfx+'-c').textContent='✓ '+qs.cor;
+  document.getElementById(pfx+'-w').textContent='✗ '+qs.wr;
+  document.getElementById(pfx+'-l').textContent=(qs.deck.length-qs.idx)+' left';
+}
+function showQuestion(pfx){
+  const qs=QS[pfx]; if(qs.idx>=qs.deck.length){ finishQuiz(pfx); return; }
+  const w=qs.deck[qs.idx];
+  document.getElementById(pfx+'-fb').className='quiz-fb';
+  document.getElementById(pfx+'-next').className='quiz-next '+(pfx==='q'?'next-def':pfx==='s'?'next-syn':'next-ant');
+  document.getElementById(pfx+'-word').textContent=w.w;
+  document.getElementById(pfx+'-tag').textContent='Unit '+w.u+' · '+w.p;
+  if(pfx==='q'){
+    const wrong=shuffle(W.filter(x=>x.w!==w.w)).slice(0,3);
+    buildOpts(pfx,shuffle([w,...wrong]).map(o=>({label:o.d,correct:o.w===w.w})),
+      ()=>{ document.getElementById(pfx+'-fb').innerHTML='<strong>Syn:</strong> '+w.s+'<br><strong>Ant:</strong> '+w.a; });
+  } else if(pfx==='s'){
+    document.getElementById('s-ctx').textContent='Definition: '+w.d;
+    buildOpts(pfx,shuffle([{label:pickOne(w.s),correct:true},...pickWrongSyns(w,3).map(x=>({label:x,correct:false}))]),
+      ()=>{ document.getElementById(pfx+'-fb').innerHTML='All synonyms: <strong>'+w.s+'</strong>'; });
+  } else {
+    document.getElementById('a-ctx').textContent='Definition: '+w.d;
+    buildOpts(pfx,shuffle([{label:pickOne(w.a),correct:true},...pickWrongAnts(w,3).map(x=>({label:x,correct:false}))]),
+      ()=>{ document.getElementById(pfx+'-fb').innerHTML='All antonyms: <strong>'+w.a+'</strong>'; });
+  }
+}
+function buildOpts(pfx,opts,feedbackFn){
+  const c=document.getElementById(pfx+'-opts'); c.innerHTML='';
+  opts.forEach(opt=>{ const btn=document.createElement('button'); btn.className='quiz-opt'; btn.textContent=opt.label; btn.onclick=()=>selectOpt(pfx,btn,opt.correct,feedbackFn); c.appendChild(btn); });
+}
+function selectOpt(pfx,btn,correct,feedbackFn){
+  const qs=QS[pfx];
+  document.querySelectorAll('#'+pfx+'-opts .quiz-opt').forEach(b=>{b.classList.add('locked');b.onclick=null;});
+  const fb=document.getElementById(pfx+'-fb');
+  if(correct){btn.classList.add('correct');qs.cor++;fb.className='quiz-fb show correct';}
+  else{btn.classList.add('wrong');qs.wr++;fb.className='quiz-fb show wrong';}
+  feedbackFn(); qs.idx++; updateScore(pfx);
+  document.getElementById(pfx+'-next').className='quiz-next show '+(pfx==='q'?'next-def':pfx==='s'?'next-syn':'next-ant');
+}
+function advanceQuiz(pfx){ showQuestion(pfx); }
+function finishQuiz(pfx){
+  const qs=QS[pfx];
+  document.getElementById(pfx==='q'?'quiz-main':pfx==='s'?'syn-main':'ant-main').classList.add('hidden');
+  document.getElementById(pfx+'-result').classList.add('show');
+  const total=qs.cor+qs.wr, pct=total>0?Math.round((qs.cor/total)*100):0;
+  document.getElementById(pfx+'-re').textContent=pct>=80?'🎉':pct>=60?'💪':'📚';
+  document.getElementById(pfx+'-rt').textContent=pct>=80?'Excellent!':pct>=60?'Good work!':'Keep studying!';
+  document.getElementById(pfx+'-rs').textContent=qs.cor+' correct out of '+total+' — '+pct+'%';
+}
+function pickOne(str){ const arr=str.split(',').map(x=>x.trim()).filter(x=>x.length>0&&!x.startsWith('(')); return arr[Math.floor(Math.random()*arr.length)]||arr[0]; }
+function pickWrongSyns(word,n){ const pool=[]; shuffle([...W]).filter(x=>x.w!==word.w).forEach(x=>x.s.split(',').map(t=>t.trim()).filter(t=>t.length>0&&!t.startsWith('(')).forEach(t=>pool.push(t))); const used=new Set(word.s.split(',').map(t=>t.trim())); return shuffle(pool.filter(t=>!used.has(t))).slice(0,n); }
+function pickWrongAnts(word,n){ const pool=[]; shuffle([...W]).filter(x=>x.w!==word.w).forEach(x=>x.a.split(',').map(t=>t.trim()).filter(t=>t.length>0&&!t.startsWith('(')).forEach(t=>pool.push(t))); const used=new Set(word.a.split(',').map(t=>t.trim())); return shuffle(pool.filter(t=>!used.has(t))).slice(0,n); }
+
+// MATCH
+let matchWords=[],matchSel=null,matchCor=0,matchTot=0;
+function resetMatch(){
+  matchWords=shuffle([...getWords()]).slice(0,6); matchSel=null; matchCor=0; matchTot=matchWords.length;
+  document.getElementById('match-result').classList.remove('show');
+  document.getElementById('match-grid').classList.remove('hidden');
+  document.getElementById('match-score').textContent='Match each word to its definition';
+  const grid=document.getElementById('match-grid'); grid.innerHTML='';
+  const wi=matchWords.map((w,i)=>({type:'word',id:i,label:w.w}));
+  const di=shuffle(matchWords.map((w,i)=>({type:'def',id:i,label:w.d.length>72?w.d.substring(0,72)+'…':w.d})));
+  shuffle([...wi,...di]).forEach(item=>{ const t=document.createElement('div'); t.className='match-tile '+item.type; t.textContent=item.label; t.dataset.id=item.id; t.dataset.type=item.type; t.onclick=()=>handleMatch(t); grid.appendChild(t); });
+}
+function handleMatch(tile){
+  if(tile.classList.contains('matched')) return;
+  if(!matchSel){matchSel=tile;tile.classList.add('selected');return;}
+  if(matchSel===tile){tile.classList.remove('selected');matchSel=null;return;}
+  if(matchSel.dataset.type===tile.dataset.type){matchSel.classList.remove('selected');document.querySelectorAll('.match-tile.selected').forEach(t=>t.classList.remove('selected'));matchSel=tile;tile.classList.add('selected');return;}
+  if(matchSel.dataset.id===tile.dataset.id){
+    [matchSel,tile].forEach(t=>{t.classList.remove('selected');t.classList.add('matched');t.onclick=null;}); matchCor++;
+    document.getElementById('match-score').textContent=matchCor+' / '+matchTot+' matched'; matchSel=null;
+    if(matchCor===matchTot) setTimeout(()=>{ document.getElementById('match-grid').classList.add('hidden'); document.getElementById('match-result').classList.add('show'); document.getElementById('match-sub').textContent='All '+matchTot+' pairs found!'; },500);
+  } else {
+    [matchSel,tile].forEach(t=>{ t.classList.remove('selected');t.classList.add('wrong-flash');setTimeout(()=>t.classList.remove('wrong-flash'),400); }); matchSel=null;
+  }
+}
+
+// LIST
+function renderList(filter){
+  const words=getWords().filter(w=>{ if(!filter) return true; const q=filter.toLowerCase(); return w.w.includes(q)||w.d.toLowerCase().includes(q)||w.s.toLowerCase().includes(q)||w.a.toLowerCase().includes(q); });
+  const c=document.getElementById('word-list'); c.innerHTML='';
+  words.forEach(w=>{ c.innerHTML+=`<div class="word-row"><div class="word-row-unit">${w.u}</div><div class="word-row-left"><div class="word-row-name">${w.w}</div><div class="word-row-pos">${w.p}</div></div><div class="word-row-right"><div class="word-row-def">${w.d}</div><div class="word-row-meta"><strong>Syn:</strong> ${w.s}</div><div class="word-row-meta"><strong>Ant:</strong> <span class="ant-text">${w.a}</span></div></div></div>`; });
+}
+function filterList(val){ renderList(val||null); }
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}return arr; }
+</script>
+</body>
+</html>
